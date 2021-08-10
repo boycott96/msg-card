@@ -2,6 +2,7 @@
   <el-card class="box-card">
     <template #header>
       <div class="card-header">
+        <span>头部消息</span>
         <el-date-picker
           class="date-picker"
           v-model="selectDate"
@@ -18,17 +19,19 @@
         ></el-input>
       </div>
     </template>
-    <div v-for="o in 4" :key="o" class="text item">
-      {{ "列表内容 " + o }}
-    </div>
+    <form-data></form-data>
   </el-card>
 </template>
 
 <script lang="ts">
+import FormData from "./FormData.vue";
 import { Options, Vue } from "vue-class-component";
 @Options({
   props: {
     msg: String,
+  },
+  components: {
+    FormData,
   },
 })
 export default class FrameworkData extends Vue {
@@ -42,9 +45,9 @@ export default class FrameworkData extends Vue {
 <style scoped lang="scss">
 .box-card {
   border-radius: 10px;
-  ::v-deep .el-card__header {
-    background: #3a75ff;
-  }
+  // ::v-deep .el-card__header {
+  //   background: #3a75ff;
+  // }
   .card-header {
     display: flex;
     align-items: center;
