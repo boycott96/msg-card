@@ -2,6 +2,11 @@
   <div class="header">
     <div class="logo"><img src="@/assets/logo.png" /></div>
     <div class="name">
+      <el-avatar
+        size="small"
+        class="avatar"
+        src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
+      ></el-avatar>
       <span>王小虎</span>
     </div>
   </div>
@@ -23,6 +28,10 @@ export default class Header extends Vue {}
   .name {
     width: 100%;
     text-align: right;
+    .avatar {
+      vertical-align: middle;
+      margin-right: 15px;
+    }
   }
 }
 </style>

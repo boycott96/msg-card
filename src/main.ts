@@ -31,6 +31,7 @@ import {
   ElTable,
   ElTableColumn,
   ElCollapseTransition,
+  ElAvatar,
 } from "element-plus";
 
 const components = [
@@ -60,6 +61,7 @@ const components = [
   ElTable,
   ElTableColumn,
   ElCollapseTransition,
+  ElAvatar,
 ];
 
 const app = createApp(App);
