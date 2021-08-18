@@ -2,18 +2,17 @@
   <div class="header">
     <div class="logo"><img src="@/assets/logo.png" /></div>
     <div class="name">
-      <el-avatar
-        size="small"
-        class="avatar"
-        src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
-      ></el-avatar>
-      <span>王小虎</span>
+      <el-avatar size="small" class="avatar" :src="avatar"></el-avatar>
+      <span>{{ username }}</span>
     </div>
   </div>
 </template>
 <script lang="ts">
 import { Options, Vue } from "vue-class-component";
-@Options({})
+
+@Options({
+  props: ["username", "avatar"],
+})
 export default class Header extends Vue {}
 </script>
 <style lang="scss" scoped>

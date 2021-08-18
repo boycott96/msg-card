@@ -5,7 +5,12 @@
       v-on:mouseover="hoverActive()"
       v-on:mouseout="hoverRemove()"
     >
-      <el-card id="function-card-1" class="function-card" shadow="hover">
+      <el-card
+        id="function-card-1"
+        class="function-card"
+        shadow="hover"
+        @click="frameworkVisible = true"
+      >
         <div>
           <el-icon class="icon"><ChatDotRound /></el-icon>
         </div>
@@ -18,26 +23,38 @@
         </div>
       </el-card>
     </div>
-    <!-- <FrameworkData class="framework" /> -->
-    <!-- <SelectPeople /> -->
+    <FrameworkData
+      ref="frameworkData"
+      :dialog-visible="frameworkVisible"
+      @closeDialog="closeDialog"
+      @changePeopleShow="changePeopleShow"
+    />
+    <SelectPeople
+      :dialog-visible="peopleVisible"
+      @changePeopleShow="changePeopleShow"
+      @sendMessage="sendMessage"
+    />
   </div>
 </template>
 
 <script lang="ts">
 import { Options, Vue } from "vue-class-component";
 import { ChatDotRound, Promotion } from "@element-plus/icons";
-// import FrameworkData from "@/components/FrameworkData.vue"; // @ is an alias to /src
-// import SelectPeople from "@/components/SelectPeople.vue";
+import FrameworkData from "@/components/FrameworkData.vue"; // @ is an alias to /src
+import SelectPeople from "@/components/SelectPeople.vue";
 
 @Options({
   components: {
-    // FrameworkData,
-    // SelectPeople,
+    FrameworkData,
+    SelectPeople,
     ChatDotRound,
     Promotion,
   },
 })
 export default class Home extends Vue {
+  private frameworkVisible = false;
+  private peopleVisible = false;
+
   private hoverActive() {
     const card = document.getElementById("function-card-1");
     if (card) {
@@ -50,6 +67,18 @@ export default class Home extends Vue {
     if (card) {
       card.className = "el-card is-hover-shadow function-card card-hover-out";
     }
+  }
+
+  private closeDialog() {
+    this.frameworkVisible = false;
+  }
+
+  private changePeopleShow(value: boolean) {
+    this.peopleVisible = value;
+  }
+
+  private sendMessage(ids: string[]) {
+    (this.$refs as any).frameworkData.sendMessage(ids);
   }
 }
 </script>
@@ -113,9 +142,6 @@ export default class Home extends Vue {
         }
       }
     }
-  }
-
-  .framework {
   }
 }
 </style>

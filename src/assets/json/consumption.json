@@ -1,0 +1,13 @@
+{
+  "config": {
+    "wide_screen_mode": true
+  },
+  "elements": [],
+  "header": {
+    "template": "blue",
+    "title": {
+      "content": "2021年07月01日消耗日报",
+      "tag": "plain_text"
+    }
+  }
+}
