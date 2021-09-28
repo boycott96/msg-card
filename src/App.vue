@@ -38,7 +38,7 @@ export default class Home extends Vue {
   private avatar = "";
   private username = "";
 
-  public created() {
+  created() {
     this.loading = ElLoading.service({
       lock: true,
       text: "Loading",
@@ -91,6 +91,7 @@ export default class Home extends Vue {
 
   // 登录飞书用户
   private login() {
+    this.loading.close();
     window.location.href =
       "https://open.feishu.cn/open-apis/authen/v1/index?redirect_uri=" +
       (this as any).getApp.redirect_uri +

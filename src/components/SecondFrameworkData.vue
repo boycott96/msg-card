@@ -19,7 +19,7 @@
         </div>
 
         <div v-if="!editTitleShow" class="text">
-          {{ formateSelectDate }}{{ title }}
+          {{ title }}
           <div class="color-picker">
             <div class="color-text" :style="{ backgroundColor: colorValue }">
               标题颜色
@@ -28,15 +28,6 @@
         </div>
         <template v-else>
           <div class="edit-row">
-            <el-date-picker
-              class="date-picker"
-              size="small"
-              v-model="selectDate"
-              type="date"
-              placeholder="选择日期"
-              format="YYYY 年 MM 月 DD 日"
-            >
-            </el-date-picker>
             <el-input
               class="text-input"
               size="small"
@@ -71,7 +62,70 @@
         </template>
       </div>
     </template>
-    <form-data ref="formData"></form-data>
+    <div class="data-row" style="margin-bottom: 10px; height: 250px">
+      <!-- 正文数据 -->
+      <div class="action" @click="editText">
+        <el-button
+          size="small"
+          :icon="editTextShow ? 'el-icon-finished' : 'el-icon-edit'"
+        ></el-button>
+      </div>
+      <template v-if="!editTextShow">
+        <div class="text-row">{{ textarea }}</div>
+      </template>
+      <div v-else style="width: 100%">
+        <el-input
+          type="textarea"
+          :rows="10"
+          placeholder="请输入内容"
+          v-model="textarea"
+        >
+        </el-input>
+      </div>
+    </div>
+    <div class="data-row">
+      <div class="action" @click="editFooter()">
+        <el-button
+          size="small"
+          :icon="footerData.editShow ? 'el-icon-finished' : 'el-icon-edit'"
+        ></el-button>
+      </div>
+      <template v-if="!footerData.editShow">
+        <div class="text-footer">
+          <div class="footer-icon">{{ footerData.icon }}</div>
+          <div class="footer">{{ footerData.title }}：</div>
+          <a target="_blank" :href="footerData.link" class="footer-link">{{
+            footerData.link
+          }}</a>
+        </div>
+      </template>
+      <div v-else style="width: 100%">
+        <el-row :gutter="20">
+          <el-col :span="4">
+            <el-input
+              size="small"
+              v-model="footerData.icon"
+              placeholder="输入图标"
+            ></el-input>
+          </el-col>
+          <el-col :sm="8">
+            <el-input
+              size="small"
+              v-model="footerData.title"
+              placeholder="输入标题"
+            ></el-input>
+          </el-col>
+          <el-col :sm="8">
+            <el-input
+              size="small"
+              v-model="footerData.link"
+              placeholder="输入链接"
+            >
+            </el-input>
+          </el-col>
+        </el-row>
+      </div>
+    </div>
     <template #footer>
       <div class="dialog-footer">
         <a
@@ -98,14 +152,20 @@
 </template>
 
 <script lang="ts">
-import moment from "moment";
 import FormData from "./FormData.vue";
 import { Options, Vue } from "vue-class-component";
 import * as consumption from "../assets/json/consumption.json";
 import * as divField from "../assets/json/divField.json";
 import * as tagDiv from "../assets/json/tagDiv.json";
 import * as tagNote from "../assets/json/tagNote.json";
-import { sendMessage, batchSendMessage } from "@/api/lark";
+import { sendMessage } from "@/api/lark";
+
+interface footer {
+  editShow: boolean;
+  icon: string;
+  title: string;
+  link: string;
+}
 
 @Options({
   props: {
@@ -120,7 +180,6 @@ export default class FrameworkData extends Vue {
   /**
    * 定义
    */
-  private selectDate: Date = new Date();
   private title = "消耗日报";
   private color = "blue";
   private colorOptions = [
@@ -188,13 +247,14 @@ export default class FrameworkData extends Vue {
 
   // 界面
   private editTitleShow = false;
-
-  /**
-   * compute
-   */
-  get formateSelectDate(): string {
-    return moment(this.selectDate).format("YYYY年MM月DD日");
-  }
+  private editTextShow = true;
+  private textarea = "";
+  private footerData: footer = {
+    editShow: false,
+    icon: "📊",
+    title: "更多数据看板",
+    link: "https://www.baidu.com/",
+  };
 
   get colorValue(): string {
     const option: any = this.colorOptions.find(
@@ -212,6 +272,14 @@ export default class FrameworkData extends Vue {
 
   private editTitle() {
     this.editTitleShow = !this.editTitleShow;
+  }
+
+  private editText() {
+    this.editTextShow = !this.editTextShow;
+  }
+
+  private editFooter() {
+    this.footerData.editShow = !this.footerData.editShow;
   }
 
   private resetForm() {
@@ -243,20 +311,6 @@ export default class FrameworkData extends Vue {
   }
 
   private sendMessage(ids: string[]) {
-    // const app_access_token = localStorage.getItem("app_access_token");
-    // let header: any = (this as any).getHeaders;
-    // header = {
-    //   Authorization: "Bearer " + app_access_token,
-    //   ...header,
-    // };
-    // const params: any = {
-    //   open_ids: ids,
-    //   content: this.tidyDataJson(),
-    //   msg_type: "interactive",
-    // };
-    // batchSendMessage(params, header).then((res: any) => {
-    //   console.log(res);
-    // });
     ids.forEach((item: string) => {
       const app_access_token = localStorage.getItem("app_access_token");
       let header: any = (this as any).getHeaders;
@@ -289,81 +343,22 @@ export default class FrameworkData extends Vue {
     // 设置头部信颜色
     cardMain.header.template = this.color;
     // 设置头部内容
-    cardMain.header.title.content = this.formateSelectDate + this.title;
+    cardMain.header.title.content = this.title;
 
-    // 获取总消耗
-    const allData = (this.$refs.formData as any).getAllData();
-    const allDataField: any = JSON.parse(
+    // 获取正文
+    const textField: any = JSON.parse(
       JSON.stringify((divField as any).default)
     );
-    allDataField.text.content =
-      "**" +
-      allData.subtitle +
-      "：**" +
-      allData.consumption +
-      " " +
-      (allData.liftRate < 0 ? "📉" : "📈") +
-      " " +
-      allData.liftRate +
-      "%，" +
-      allData.boostValue;
+    textField.text.content = this.textarea;
     const divBody: any = JSON.parse(JSON.stringify((tagDiv as any).default));
-    divBody.fields.push(allDataField);
+    divBody.fields.push(textField);
     cardMain.elements.push(divBody);
-
-    // 获取中间部分信息
-    const formData = (this.$refs.formData as any).getForm();
-    let formDivBody: any;
-    formData.forEach((item: any, index: number) => {
-      if (item.sortType === "1") {
-        const field: any = JSON.parse(
-          JSON.stringify((divField as any).default)
-        );
-        field.text.content =
-          "**" +
-          item.subtitle +
-          "：**" +
-          item.consumption +
-          "\n" +
-          (item.liftRate < 0 ? "📉" : "📈") +
-          " " +
-          item.liftRate +
-          "%，" +
-          item.boostValue;
-        formDivBody = JSON.parse(JSON.stringify((tagDiv as any).default));
-        formDivBody.fields.push(field);
-        cardMain.elements.push(JSON.parse(JSON.stringify(formDivBody)));
-      } else {
-        if (index % 2 === 0) {
-          // 如果是首位，则创建body json
-          formDivBody = JSON.parse(JSON.stringify((tagDiv as any).default));
-        }
-        const field: any = JSON.parse(
-          JSON.stringify((divField as any).default)
-        );
-        field.text.content =
-          "**" +
-          item.subtitle +
-          "：**" +
-          item.consumption +
-          "\n" +
-          (item.liftRate < 0 ? "📉" : "📈") +
-          " " +
-          item.liftRate +
-          "%，" +
-          item.boostValue;
-        formDivBody.fields.push(field);
-        if (index % 2 !== 0) {
-          cardMain.elements.push(JSON.parse(JSON.stringify(formDivBody)));
-        }
-      }
-    });
 
     // 设置分割线
     cardMain.elements.push({ tag: "hr" });
 
     // 设置尾巴
-    const footerData = (this.$refs.formData as any).getFooterData();
+    const footerData = this.footerData;
     const footerFiled: any = JSON.parse(
       JSON.stringify((divField as any).default)
     );
@@ -452,6 +447,34 @@ export default class FrameworkData extends Vue {
         width: 32px;
         padding: 0;
         font-size: 14px;
+      }
+    }
+  }
+  .data-row {
+    display: flex;
+    line-height: 32px;
+    margin-bottom: 10px;
+    .text-footer {
+      display: flex;
+      font-size: 16px;
+      .footer-icon {
+        margin-right: 10px;
+      }
+      .footer-title {
+        font-weight: normal;
+      }
+      .footer-link {
+        color: #3164dd;
+      }
+    }
+    .action {
+      padding-right: 10px;
+      .el-button {
+        border-radius: 50%;
+        height: 32px;
+        width: 32px;
+        font-size: 14px;
+        padding: 0;
       }
     }
   }

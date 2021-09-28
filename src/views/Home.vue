@@ -1,32 +1,42 @@
 <template>
   <div class="home">
-    <div
-      class="home-card"
-      v-on:mouseover="hoverActive()"
-      v-on:mouseout="hoverRemove()"
-    >
-      <el-card
-        id="function-card-1"
-        class="function-card"
-        shadow="hover"
-        @click="frameworkVisible = true"
-      >
-        <div>
-          <el-icon class="icon"><ChatDotRound /></el-icon>
+    <div class="home-row">
+      <template v-for="(item, index) in cardList" :key="index">
+        <div
+          class="home-card"
+          v-on:mouseover="hoverActive(item.id)"
+          v-on:mouseout="hoverRemove(item.id)"
+        >
+          <el-card
+            :id="item.id"
+            class="function-card"
+            shadow="hover"
+            @click="frameworkVisible[item.id] = true"
+          >
+            <div>
+              <el-icon class="icon"><i :class="item.icon1" /></el-icon>
+            </div>
+            <div class="title">{{ item.title }}</div>
+            <div class="subtitle">
+              {{ item.subtitle }}
+              <el-icon>
+                <i :class="item.icon2" />
+              </el-icon>
+            </div>
+          </el-card>
         </div>
-        <div class="title">消耗模板信息发送</div>
-        <div class="subtitle">
-          快捷消息
-          <el-icon>
-            <Promotion />
-          </el-icon>
-        </div>
-      </el-card>
+      </template>
     </div>
-    <FrameworkData
-      ref="frameworkData"
-      :dialog-visible="frameworkVisible"
-      @closeDialog="closeDialog"
+    <FirstFrameworkData
+      ref="firstFrameworkData"
+      :dialog-visible="frameworkVisible.card_1"
+      @closeDialog="closeFirstDialog"
+      @changePeopleShow="changePeopleShow"
+    />
+    <SecondFrameworkData
+      ref="secondFrameworkData"
+      :dialog-visible="frameworkVisible.card_2"
+      @closeDialog="closeSecondDialog"
       @changePeopleShow="changePeopleShow"
     />
     <SelectPeople
@@ -40,37 +50,66 @@
 <script lang="ts">
 import { Options, Vue } from "vue-class-component";
 import { ChatDotRound, Promotion } from "@element-plus/icons";
-import FrameworkData from "@/components/FrameworkData.vue"; // @ is an alias to /src
+import FirstFrameworkData from "@/components/FirstFrameworkData.vue"; // @ is an alias to /src
+import SecondFrameworkData from "@/components/SecondFrameworkData.vue";
 import SelectPeople from "@/components/SelectPeople.vue";
 
 @Options({
   components: {
-    FrameworkData,
+    FirstFrameworkData,
+    SecondFrameworkData,
     SelectPeople,
     ChatDotRound,
     Promotion,
   },
 })
 export default class Home extends Vue {
-  private frameworkVisible = false;
+  private firstFrameworkVisible = false;
+  private secondFrameworkVisible = false;
   private peopleVisible = false;
 
-  private hoverActive() {
-    const card = document.getElementById("function-card-1");
+  private cardList: any = [
+    {
+      id: "card_1",
+      title: "消耗模板信息发送",
+      subtitle: "快捷消息",
+      icon1: "el-icon-s-data",
+      icon2: "el-icon-message-solid",
+    },
+    {
+      id: "card_2",
+      title: "通用模板信息发送",
+      subtitle: "标题，正文，尾链",
+      icon1: "el-icon-s-order",
+      icon2: "el-icon-message-solid",
+    },
+  ];
+
+  private frameworkVisible: any = {
+    card_1: false,
+    card_2: false,
+  };
+
+  private hoverActive(id: any) {
+    const card = document.getElementById(id);
     if (card) {
       card.className = "el-card is-hover-shadow function-card card-hover";
     }
   }
 
-  private hoverRemove() {
-    const card = document.getElementById("function-card-1");
+  private hoverRemove(id: any) {
+    const card = document.getElementById(id);
     if (card) {
       card.className = "el-card is-hover-shadow function-card card-hover-out";
     }
   }
 
-  private closeDialog() {
-    this.frameworkVisible = false;
+  private closeFirstDialog() {
+    this.frameworkVisible.card_1 = false;
+  }
+
+  private closeSecondDialog() {
+    this.frameworkVisible.card_2 = false;
   }
 
   private changePeopleShow(value: boolean) {
@@ -89,9 +128,13 @@ export default class Home extends Vue {
   min-width: 320px;
   padding: 12px 40px 18px 20px;
   background: #f3f5f9;
+  .home-row {
+    display: flex;
+  }
   .home-card {
     width: 160px;
     height: 150px;
+    margin: 10px;
     .function-card {
       border-radius: 10px;
       border: 0;
