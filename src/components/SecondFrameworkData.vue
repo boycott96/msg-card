@@ -311,6 +311,7 @@ export default class FrameworkData extends Vue {
   }
 
   public sendMessage(ids: string[]) {
+    console.log(ids);
     ids.forEach((item: string) => {
       const app_access_token = localStorage.getItem("app_access_token");
       let header: any = (this as any).getHeaders;

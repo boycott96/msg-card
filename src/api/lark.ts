@@ -46,3 +46,26 @@ export const searchPeople = (params: param, headers: header): any => {
     headers,
   });
 };
+
+// 搜索部门数据
+export const searchDept = (params: param, headers: header): any => {
+  return Axios.post("/open-apis/contact/v3/departments/search", params, {
+    headers,
+  });
+};
+
+// 获取部门下的所有用户
+export const getDeptForPeople = (params: param, headers: header): any => {
+  return Axios.get("/open-apis/contact/v3/users", {
+    params,
+    headers,
+  });
+};
+
+// 获取部门的子部门
+export const getSubDepartment = (params: param, headers: header): any => {
+  return Axios.get("/open-apis/contact/v3/departments", {
+    params,
+    headers,
+  });
+};

@@ -36,6 +36,9 @@ import {
   ElColorPicker,
   ElLoading,
   ElDivider,
+  ElCheckbox,
+  ElRadio,
+  ElRadioGroup,
 } from "element-plus";
 
 const components = [
@@ -70,6 +73,9 @@ const components = [
   ElColorPicker,
   ElLoading,
   ElDivider,
+  ElCheckbox,
+  ElRadio,
+  ElRadioGroup,
 ];
 
 const app = createApp(App);
