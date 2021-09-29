@@ -117,7 +117,11 @@ export default class Home extends Vue {
   }
 
   private sendMessage(ids: string[]) {
-    (this.$refs as any).frameworkData.sendMessage(ids);
+    if (this.frameworkVisible.card_1) {
+      (this.$refs as any).firstFrameworkData.sendMessage(ids);
+    } else if (this.frameworkVisible.card_2) {
+      (this.$refs as any).secondFrameworkData.sendMessage(ids);
+    }
   }
 }
 </script>

@@ -48,6 +48,7 @@ export default class Home extends Vue {
     if (url.indexOf("?") != -1) {
       this.init(url);
     } else {
+      this.loading.close();
       // 需要重新授权登录
       this.login();
     }
@@ -91,7 +92,6 @@ export default class Home extends Vue {
 
   // 登录飞书用户
   private login() {
-    this.loading.close();
     window.location.href =
       "https://open.feishu.cn/open-apis/authen/v1/index?redirect_uri=" +
       (this as any).getApp.redirect_uri +
