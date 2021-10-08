@@ -18,8 +18,12 @@ import { Options, Vue } from "vue-class-component";
 import zhCn from "element-plus/lib/locale/lang/zh-cn";
 // import Menu from "./views/layout/Menu.vue";
 import Header from "./views/layout/Header.vue";
-import { ElLoading } from "element-plus";
-import { getAccessToken, getLoginData } from "@/api/lark";
+import {
+  getAccessToken,
+  getLoginData,
+  getUserData,
+  getDeptData,
+} from "@/api/lark";
 import { mapGetters } from "vuex";
 
 @Options({
@@ -33,22 +37,15 @@ import { mapGetters } from "vuex";
 })
 export default class Home extends Vue {
   private locale: any = zhCn;
-  private loading: any;
 
   private avatar = "";
   private username = "";
 
   created() {
-    this.loading = ElLoading.service({
-      lock: true,
-      text: "Loading",
-      spinner: "el-icon-loading",
-    });
     const url = window.location.href; //拿到当前页面url,vue编译完成的页面会有'#/'
     if (url.indexOf("?") != -1) {
       this.init(url);
     } else {
-      this.loading.close();
       // 需要重新授权登录
       this.login();
     }
@@ -67,11 +64,21 @@ export default class Home extends Vue {
     };
     getLoginData(params, header).then((res: any) => {
       if (res.status === 200 && res.data.code === 0) {
-        this.loading.close();
         this.avatar = res.data.data.avatar_url;
         this.username = res.data.data.name;
+        localStorage.setItem("username", res.data.data.name);
         localStorage.setItem("open_id", res.data.data.open_id);
         localStorage.setItem("user_access_token", res.data.data.access_token);
+        getUserData(res.data.data.open_id, header).then((res1: any) => {
+          getDeptData(res1.data.data.user.department_ids[0], header).then(
+            (res2: any) => {
+              localStorage.setItem(
+                "department_name",
+                res2.data.data.department.name
+              );
+            }
+          );
+        });
       } else {
         this.login();
       }
@@ -79,8 +86,8 @@ export default class Home extends Vue {
   }
 
   private init(url: string) {
-    const time = localStorage.getItem("expire_time");
-    if (time && new Date().getTime() < parseInt(time)) {
+    const time: any = localStorage.getItem("expire_time");
+    if (time && new Date().getTime() < time) {
       // 直接通过访问appAccessToken
       // 进行code保存
       this.getUrlCode(url);

@@ -134,6 +134,10 @@ export default class SelectPeople extends Vue {
 
   private handleClose() {
     this.peopleValue = "";
+    this.deptList = [];
+    this.peopleList = [];
+    this.selectList = [];
+    this.ids = [];
     this.$emit("changePeopleShow", false);
   }
 
@@ -158,7 +162,9 @@ export default class SelectPeople extends Vue {
       if (res.data.data.items) {
         res.data.data.items.forEach((item: any) => {
           // 循环获取对应部门的人员，然后添加到待发送的队列中
-          this.getDeptPeople(item.department_id);
+          if (item.department_id != 0) {
+            this.getDeptPeople(item.department_id);
+          }
         });
       }
     });
@@ -166,6 +172,7 @@ export default class SelectPeople extends Vue {
 
   private sendMessage() {
     this.loading = true;
+    this.ids = [];
     // 统计所有的人员
     Promise.all(
       this.selectList.map((item: any) => {
@@ -183,6 +190,7 @@ export default class SelectPeople extends Vue {
       setTimeout(() => {
         this.$emit("sendMessage", this.ids);
         this.loading = false;
+        this.handleClose();
       }, 3000);
     });
   }

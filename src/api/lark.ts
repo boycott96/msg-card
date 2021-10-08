@@ -69,3 +69,17 @@ export const getSubDepartment = (params: param, headers: header): any => {
     headers,
   });
 };
+
+// 获取单个用户的信息
+export const getUserData = (userId: string, headers: header): any => {
+  return Axios.get("/open-apis/contact/v3/users/" + userId, {
+    headers,
+  });
+};
+
+// 获取单个部门的信息
+export const getDeptData = (deptId: string, headers: header): any => {
+  return Axios.get("/open-apis/contact/v3/departments/" + deptId, {
+    headers,
+  });
+};

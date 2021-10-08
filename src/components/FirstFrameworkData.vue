@@ -106,6 +106,7 @@ import * as divField from "../assets/json/divField.json";
 import * as tagDiv from "../assets/json/tagDiv.json";
 import * as tagNote from "../assets/json/tagNote.json";
 import { sendMessage } from "@/api/lark";
+import { ElMessage } from "element-plus";
 
 @Options({
   props: {
@@ -243,35 +244,47 @@ export default class FrameworkData extends Vue {
   }
 
   public sendMessage(ids: string[]) {
-    // const app_access_token = localStorage.getItem("app_access_token");
-    // let header: any = (this as any).getHeaders;
-    // header = {
-    //   Authorization: "Bearer " + app_access_token,
-    //   ...header,
-    // };
-    // const params: any = {
-    //   open_ids: ids,
-    //   content: this.tidyDataJson(),
-    //   msg_type: "interactive",
-    // };
-    // batchSendMessage(params, header).then((res: any) => {
-    //   console.log(res);
-    // });
-    ids.forEach((item: string) => {
-      const app_access_token = localStorage.getItem("app_access_token");
-      let header: any = (this as any).getHeaders;
-      header = {
-        Authorization: "Bearer " + app_access_token,
-        ...header,
-      };
-      const params: any = {
-        receive_id: item,
-        content: JSON.stringify(this.tidyDataJson()),
-        msg_type: "interactive",
-      };
-      sendMessage(params, header).then((res: any) => {
-        console.log(res);
-      });
+    const app_access_token = localStorage.getItem("app_access_token");
+    let header: any = (this as any).getHeaders;
+    header = {
+      Authorization: "Bearer " + app_access_token,
+      ...header,
+    };
+    let flag = false;
+    Promise.all(
+      ids.map((item: any) => {
+        return new Promise(async (reslove: any) => {
+          const params: any = {
+            receive_id: item,
+            content: JSON.stringify(this.tidyDataJson()),
+            msg_type: "interactive",
+          };
+          await sendMessage(params, header)
+            .then()
+            .catch((error: any) => {
+              if (error) {
+                flag = true;
+              }
+            });
+          reslove();
+        });
+      })
+    ).then(() => {
+      if (flag) {
+        ElMessage({
+          showClose: true,
+          duration: 5000,
+          message: "发送异常",
+          type: "error",
+        });
+      } else {
+        ElMessage({
+          showClose: true,
+          duration: 5000,
+          message: "发送成功",
+          type: "success",
+        });
+      }
     });
   }
 
@@ -282,9 +295,6 @@ export default class FrameworkData extends Vue {
   private tidyDataJson() {
     const cardMain: any = JSON.parse(
       JSON.stringify((consumption as any).default)
-    );
-    const cardFooter: any = JSON.parse(
-      JSON.stringify((tagNote as any).default)
     );
     // 设置头部信颜色
     cardMain.header.template = this.color;
@@ -359,9 +369,6 @@ export default class FrameworkData extends Vue {
       }
     });
 
-    // 设置分割线
-    cardMain.elements.push({ tag: "hr" });
-
     // 设置尾巴
     const footerData = (this.$refs.formData as any).getFooterData();
     const footerFiled: any = JSON.parse(
@@ -381,6 +388,19 @@ export default class FrameworkData extends Vue {
     );
     footerDivBody.fields.push(footerFiled);
     cardMain.elements.push(footerDivBody);
+
+    // 设置分割线
+    cardMain.elements.push({ tag: "hr" });
+
+    const cardFooter: any = JSON.parse(
+      JSON.stringify((tagNote as any).default)
+    );
+    cardFooter.elements[1].content =
+      "今日互联 - " +
+      localStorage.getItem("department_name") +
+      " (" +
+      localStorage.getItem("username") +
+      ")";
 
     // 设置尾部
     cardMain.elements.push(cardFooter);
